@@ -1,0 +1,16 @@
+services:
+  meshi:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    image: meshi:local
+    container_name: meshi
+    ports:
+      - '5250:5250' # web
+      - '5251:5251' # server
+    volumes:
+      - meshi-data:/data # SQLite DB を永続化（~/.meshi 相当）
+    restart: unless-stopped
+
+volumes:
+  meshi-data:
