@@ -5,6 +5,7 @@ import { getDatabasePath } from './lib/data-path.js';
 import { foodRoutes } from './routes/foods.js';
 import { recordRoutes } from './routes/records.js';
 import { goalRoutes } from './routes/goals.js';
+import { summaryRoutes } from './routes/summary.js';
 
 const PORT = Number(process.env.MESHI_SERVER_PORT ?? 5251);
 const HOST = process.env.MESHI_SERVER_HOST ?? '0.0.0.0';
@@ -23,6 +24,7 @@ app.get('/health', async () => ({
 await app.register(foodRoutes, { prefix: '/api/foods' });
 await app.register(recordRoutes, { prefix: '/api/records' });
 await app.register(goalRoutes, { prefix: '/api/goals' });
+await app.register(summaryRoutes, { prefix: '/api/summary' });
 
 const start = async () => {
   try {
