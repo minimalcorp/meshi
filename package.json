@@ -1,0 +1,27 @@
+{
+  "name": "meshi-monorepo",
+  "version": "0.0.0",
+  "private": true,
+  "description": "meshi — 摂取カロリーを記録し、目標に対する進捗を可視化するローカルツール",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "concurrently --kill-others --names server,web --prefix-colors magenta,blue \"npm run dev -w @meshi/server\" \"npm run dev -w @meshi/web\"",
+    "web:dev": "npm run dev -w @meshi/web",
+    "server:dev": "npm run dev -w @meshi/server",
+    "build": "npm run build --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present",
+    "type-check": "npm run type-check --workspaces --if-present",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1",
+    "prettier": "^3.7.4"
+  }
+}

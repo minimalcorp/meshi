@@ -1,0 +1,38 @@
+{
+  "name": "@meshi/server",
+  "version": "0.0.0",
+  "private": true,
+  "description": "meshi API server (Fastify + Prisma)",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev:migrate": "tsx scripts/ensure-data-dir.ts && prisma migrate deploy && prisma generate",
+    "dev": "npm run dev:migrate && tsx watch src/index.ts",
+    "start": "node dist/index.js",
+    "build": "prisma generate && tsc -p tsconfig.json",
+    "clean": "rm -rf dist src/generated",
+    "lint": "eslint .",
+    "type-check": "tsc --noEmit",
+    "db:migrate": "tsx scripts/ensure-data-dir.ts && prisma migrate dev",
+    "db:generate": "prisma generate",
+    "db:studio": "prisma studio"
+  },
+  "dependencies": {
+    "@fastify/cors": "^11.2.0",
+    "@libsql/client": "^0.15.0",
+    "@prisma/adapter-libsql": "^7.3.0",
+    "@prisma/client": "^7.3.0",
+    "fastify": "^5.8.2",
+    "prisma": "^7.3.0",
+    "zod": "^4.1.13"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.30",
+    "eslint": "^9",
+    "eslint-config-prettier": "^10.1.8",
+    "tsx": "^4.21.0",
+    "typescript": "5.9.3"
+  }
+}

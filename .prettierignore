@@ -1,0 +1,6 @@
+node_modules
+dist
+.next
+out
+apps/server/src/generated
+package-lock.json

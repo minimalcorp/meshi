@@ -1,0 +1,28 @@
+# dependencies
+node_modules/
+
+# builds
+dist/
+.next/
+out/
+*.tsbuildinfo
+
+# prisma generated client
+apps/server/src/generated/
+
+# env
+.env
+.env.local
+.env.*.local
+
+# logs
+*.log
+npm-debug.log*
+
+# OS
+.DS_Store
+
+# local data (meshi DB lives in ~/.meshi by default; never commit local DBs)
+*.db
+*.db-journal
+.meshi/
