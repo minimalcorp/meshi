@@ -1,0 +1,51 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+// 食品マスタ
+model Food {
+  id                 String   @id @default(uuid())
+  name               String
+  caloriesPerServing Int      @map("calories_per_serving") // 1食/1単位あたりの基準kcal
+  unitLabel          String?  @map("unit_label") // 例: "1杯", "100g"（任意）
+  archived           Boolean  @default(false)
+  createdAt          DateTime @default(now()) @map("created_at")
+  updatedAt          DateTime @updatedAt @map("updated_at")
+
+  records IntakeRecord[]
+
+  @@map("foods")
+}
+
+// 摂取記録
+model IntakeRecord {
+  id         String   @id @default(uuid())
+  foodId     String?  @map("food_id") // マスタ参照（削除時もスナップショットを残すため nullable）
+  name       String // 記録時点の食品名スナップショット
+  calories   Int // 記録時点のkcal（数量倍も反映できる実値）
+  mealType   String   @map("meal_type") // 'breakfast' | 'lunch' | 'dinner' | 'snack'
+  consumedAt DateTime @map("consumed_at")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  food Food? @relation(fields: [foodId], references: [id], onDelete: SetNull)
+
+  @@index([consumedAt])
+  @@index([foodId])
+  @@map("intake_records")
+}
+
+// 目標カロリー（期間ごとに変更可能な履歴）
+model CalorieGoal {
+  id            String   @id @default(uuid())
+  dailyTarget   Int      @map("daily_target") // kcal/日
+  effectiveFrom DateTime @map("effective_from") // この日から有効
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  @@index([effectiveFrom])
+  @@map("calorie_goals")
+}
