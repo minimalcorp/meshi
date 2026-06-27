@@ -8,3 +8,9 @@
 （実装の進行とともに追記）
 
 - (Phase 0) Node 24.9.0 / npm 11.6.0 環境。ESM(`"type": "module"`)で統一。
+- (Phase 3) **環境に `NODE_ENV=production` が設定済み**。このため `npm install` が devDependencies を
+  インストール/prune してしまう（tailwindcss, prettier, typescript 等が入らない）。
+  → 依存インストール時は `NODE_ENV=development npm install --include=dev` を使う必要がある。
+  ※ユーザーのシェル設定由来。`make install` で吸収するか、ローカル開発時の運用ルールとして要確認。
+- (Phase 3) UI は client component 中心（ブラウザ→server 直アクセス, CORS 有効）。SSR データ取得はしない。
+  API のベースURLは `NEXT_PUBLIC_MESHI_API_URL`（既定 `http://localhost:5251`）。

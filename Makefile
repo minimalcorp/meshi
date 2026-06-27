@@ -8,11 +8,12 @@ help: ## このヘルプを表示
 # ---------------------------------------------------------------------------
 # ローカル開発
 # ---------------------------------------------------------------------------
+# NOTE: 環境に NODE_ENV=production があると npm が devDeps を省略するため上書きする
 install: ## 依存インストール
-	npm install
+	NODE_ENV=development npm install --include=dev
 
 dev: ## web + server を同時起動 (ローカル)
-	npm run dev
+	NODE_ENV=development npm run dev
 
 # ---------------------------------------------------------------------------
 # docker による一時的な動作確認

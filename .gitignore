@@ -6,6 +6,7 @@ dist/
 .next/
 out/
 *.tsbuildinfo
+next-env.d.ts
 
 # prisma generated client
 apps/server/src/generated/
