@@ -116,7 +116,10 @@ export function IntakeChart({ days }: { days: SummaryDay[] }) {
         >
           <div className="font-medium">{dayLabel(tooltipData.date)}</div>
           <div>摂取: {tooltipData.total.toLocaleString()} kcal</div>
-          <div>目標: {tooltipData.target !== null ? `${tooltipData.target.toLocaleString()} kcal` : '—'}</div>
+          <div>
+            目標:{' '}
+            {tooltipData.target !== null ? `${tooltipData.target.toLocaleString()} kcal` : '—'}
+          </div>
         </TooltipWithBounds>
       )}
 
@@ -128,7 +131,8 @@ export function IntakeChart({ days }: { days: SummaryDay[] }) {
           <span className="inline-block h-2 w-2 rounded-sm bg-red-500" /> 超過
         </span>
         <span className="flex items-center gap-1">
-          <span className="inline-block h-0 w-3 border-t border-dashed border-neutral-500" /> 目標ライン
+          <span className="inline-block h-0 w-3 border-t border-dashed border-neutral-500" />{' '}
+          目標ライン
         </span>
       </div>
     </div>

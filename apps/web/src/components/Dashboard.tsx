@@ -47,7 +47,9 @@ export function Dashboard() {
   }, [load]);
 
   const pct =
-    summary && summary.target ? Math.min(100, Math.round((summary.total / summary.target) * 100)) : null;
+    summary && summary.target
+      ? Math.min(100, Math.round((summary.total / summary.target) * 100))
+      : null;
   const over = summary?.diff !== null && summary?.diff !== undefined && summary.diff > 0;
 
   return (

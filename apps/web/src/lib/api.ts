@@ -29,7 +29,12 @@ export const foodsApi = {
     http<Food>('/api/foods', { method: 'POST', body: JSON.stringify(data) }),
   update: (
     id: string,
-    data: Partial<{ name: string; caloriesPerServing: number; unitLabel: string | null; archived: boolean }>,
+    data: Partial<{
+      name: string;
+      caloriesPerServing: number;
+      unitLabel: string | null;
+      archived: boolean;
+    }>,
   ) => http<Food>(`/api/foods/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
   remove: (id: string) => http<void>(`/api/foods/${id}`, { method: 'DELETE' }),
 };

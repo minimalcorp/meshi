@@ -93,9 +93,7 @@ export function RecordEntry() {
 
   return (
     <div className="space-y-6">
-      {error && (
-        <div className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">{error}</div>
-      )}
+      {error && <div className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">{error}</div>}
 
       {/* 今日のサマリ */}
       <Card>
@@ -205,7 +203,10 @@ export function RecordEntry() {
           </Field>
 
           <div className="col-span-2">
-            <Button type="submit" disabled={submitting || (mode === 'master' && foods.length === 0)}>
+            <Button
+              type="submit"
+              disabled={submitting || (mode === 'master' && foods.length === 0)}
+            >
               {submitting ? '記録中…' : '記録する'}
             </Button>
           </div>
