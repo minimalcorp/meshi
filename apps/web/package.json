@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@visx/axis": "^4.0.0",
+    "@visx/event": "^4.0.0",
     "@visx/grid": "^4.0.0",
     "@visx/group": "^4.0.0",
     "@visx/scale": "^4.0.0",
