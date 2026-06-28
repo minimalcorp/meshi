@@ -32,6 +32,11 @@ export const createRecordSchema = z
     message: 'foodId か (name と calories) のいずれかが必要です',
   });
 
+// 複数食品を同一の食事としてまとめて登録（米とサバ缶を昼食として一括記録、など）
+export const createRecordsBatchSchema = z.object({
+  items: z.array(createRecordSchema).min(1).max(50),
+});
+
 export const updateRecordSchema = z
   .object({
     name: z.string().trim().min(1).max(200),

@@ -57,6 +57,18 @@ export const recordsApi = {
     mealType: MealType;
     consumedAt?: string;
   }) => http<IntakeRecord>('/api/records', { method: 'POST', body: JSON.stringify(data) }),
+  // 複数食品を同一の食事としてまとめて登録
+  createBatch: (
+    items: Array<{
+      foodId?: string;
+      name?: string;
+      calories?: number;
+      quantity?: number;
+      mealType: MealType;
+      consumedAt?: string;
+    }>,
+  ) =>
+    http<IntakeRecord[]>('/api/records/batch', { method: 'POST', body: JSON.stringify({ items }) }),
   update: (
     id: string,
     data: Partial<{ name: string; calories: number; mealType: MealType; consumedAt: string }>,
