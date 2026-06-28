@@ -1,0 +1,142 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version bump'
+        required: true
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+
+# 同時に2つ以上の Release workflow が走らないようにする。
+# 2つ目以降は1つ目の完了を待つ (cancel はしない)。
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  # 承認ゲート。
+  # production-release Environment に Required reviewers を設定する想定で、
+  # この job が pending 状態になると GitHub UI 上で人間の承認操作が必要になる。
+  # 承認画面で main の最新状態 (他 PR の merge 状況等) を目視確認することで、
+  # 意図しない内容のリリースを防ぐ。
+  approve:
+    name: Approve release
+    runs-on: ubuntu-latest
+    environment: production-release
+    steps:
+      - name: Record approval
+        run: |
+          echo "Release approved"
+          echo "  version: ${{ inputs.version }}"
+
+  publish:
+    name: Publish @minimalcorp/meshi to npm
+    needs: approve
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      # npm Trusted Publishing (OIDC) と provenance 自動生成のため必須。
+      id-token: write
+    steps:
+      # main 保護 ruleset を bypass するため Deploy Key で checkout する。
+      # actions/checkout は `ssh-key` 指定時に ephemeral な SSH agent を起動して
+      # private key をロードし、git remote を SSH に設定する。以降の `git push` は
+      # この deploy key で認証されて protected main に push できる。
+      #
+      # 事前準備:
+      #   1. SSH key pair を生成し public key を Deploy keys に登録 (write access)
+      #   2. private key を RELEASE_DEPLOY_KEY secret に登録
+      #   3. main ruleset の Bypass list にこの Deploy key を追加
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ssh-key: ${{ secrets.RELEASE_DEPLOY_KEY }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24.12.0'
+          registry-url: 'https://registry.npmjs.org'
+          cache: 'npm'
+
+      # npm Trusted Publishing は npm CLI v11.5.1 以降が必要 (2025-07 GA)。
+      - name: Ensure npm >= 11.5.1 (for Trusted Publishing)
+        run: npm install -g npm@latest
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Configure git author
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Bump version (workspace)
+        id: bump
+        run: |
+          npm version "${{ inputs.version }}" --workspace=@minimalcorp/meshi
+          NEW_VERSION=$(node -p "require('./apps/cli/package.json').version")
+          echo "new_version=${NEW_VERSION}" >> "$GITHUB_OUTPUT"
+          git add apps/cli/package.json package-lock.json
+          git commit -m "chore: release @minimalcorp/meshi v${NEW_VERSION}"
+          # annotated tag を作成する (軽量タグだと git push --follow-tags で
+          # push されないため必ず -a -m を付けること)。
+          git tag -a "meshi-v${NEW_VERSION}" -m "Release meshi-v${NEW_VERSION}"
+
+      # Push に失敗した場合は rebase してから retry する。他 PR が merge されて
+      # main が進んでいた場合でも、rebase で merge 済み commit を取り込んだ上で
+      # version bump commit を再適用するため、後続の npm publish は最新 state から行われる。
+      # annotated tag は rebase で自動的には移動しないので、削除 → rebase → 再作成する。
+      - name: Push commit and tag (with rebase retry)
+        env:
+          NEW_VERSION: ${{ steps.bump.outputs.new_version }}
+        run: |
+          set -u
+          for attempt in 1 2 3; do
+            if git push --atomic --follow-tags; then
+              echo "Push succeeded on attempt ${attempt}"
+              exit 0
+            fi
+            echo "::warning::Push failed on attempt ${attempt}. Attempting rebase..."
+            git tag -d "meshi-v${NEW_VERSION}" || true
+            git fetch origin main
+            if ! git rebase origin/main; then
+              echo "::error::Rebase conflict with origin/main. Aborting."
+              git rebase --abort || true
+              exit 1
+            fi
+            git tag -a "meshi-v${NEW_VERSION}" -m "Release meshi-v${NEW_VERSION}"
+            npm ci
+            sleep 2
+          done
+          echo "::error::Push failed after 3 attempts"
+          exit 1
+
+      # npm Trusted Publishing 経由で publish する (long-lived token 不要)。
+      # 認証は GitHub Actions OIDC token で行われるため NODE_AUTH_TOKEN は設定しない。
+      # provenance attestation も trusted publishing 経由で自動生成される。
+      #
+      # publish 時に apps/cli の prepack が走り、server + web(standalone) をビルドして
+      # 1パッケージに bundle する (scripts/bundle.mjs)。
+      #
+      # npmjs.com 側で以下の Trusted Publisher 設定が必要:
+      #   Organization: minimalcorp
+      #   Repository:   meshi
+      #   Workflow:     release.yml
+      #   Environment:  production-release
+      - name: Publish to npm (via Trusted Publishing)
+        run: npm publish --workspace=@minimalcorp/meshi --access public
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "meshi-v${{ steps.bump.outputs.new_version }}" \
+            --title "meshi-v${{ steps.bump.outputs.new_version }}" \
+            --generate-notes

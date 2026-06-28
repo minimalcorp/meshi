@@ -11,6 +11,11 @@ next-env.d.ts
 # prisma generated client
 apps/server/src/generated/
 
+# CLI (@minimalcorp/meshi) bundle artifacts copied in by scripts/bundle.mjs
+apps/cli/prisma/
+apps/cli/prisma.config.ts
+apps/cli/LICENSE
+
 # env
 .env
 .env.local
