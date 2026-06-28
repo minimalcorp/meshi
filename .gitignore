@@ -27,3 +27,4 @@ npm-debug.log*
 *.db
 *.db-journal
 .meshi/
+.meshi-dev/

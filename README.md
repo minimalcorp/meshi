@@ -24,15 +24,21 @@ make dev       # web + server を同時起動
 
 - web: http://localhost:5250
 - server: http://localhost:5251
+- データは使い捨ての `./.meshi-dev` に保存（実データ `~/.meshi` とは分離）。破棄は `make dev-clean`
 
-## docker で一時的に確認
+## docker で本番稼働を確認
+
+`make up` は本番稼働を想定し、ビルドして起動します。**データはホストの `~/.meshi` に永続化**されます（bind mount）。
 
 ```bash
-make up     # ビルドして起動
+make up     # ビルドして起動（~/.meshi に永続化）
 make logs   # ログ表示
-make down   # 停止（データは ~/.meshi に保持）
-make down-v # 停止 + volume 削除（完全リセット）
+make down   # 停止 & container削除（~/.meshi のデータはホストに保持）
 ```
+
+> 注: `make dev`（=`~/.meshi-dev`）と `make up`（=`~/.meshi`）はデータが別です。
+> `make up` は実データ `~/.meshi` を直接使うため、`make dev` と同時起動は避けてください
+> （同一 SQLite ファイルへの競合回避のため、どちらか一方ずつ起動）。
 
 ## ドキュメント
 

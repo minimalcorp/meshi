@@ -9,8 +9,6 @@ services:
       - '5250:5250' # web
       - '5251:5251' # server
     volumes:
-      - meshi-data:/data # SQLite DB を永続化（~/.meshi 相当）
+      # 本番稼働想定: ホストの ~/.meshi に永続化（bind mount）
+      - ${HOME}/.meshi:/data
     restart: unless-stopped
-
-volumes:
-  meshi-data:
