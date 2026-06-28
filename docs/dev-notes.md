@@ -15,16 +15,15 @@
 - (Phase 3) UI は client component 中心（ブラウザ→server 直アクセス, CORS 有効）。SSR データ取得はしない。
   API のベースURLは `NEXT_PUBLIC_MESHI_API_URL`（既定 `http://localhost:5251`）。
 
-## 完了後にまとめて確認したい点（要回答）
+## 完了後の確認事項（2026-06-28 回答反映済み）
 
-1. **週の起点**: 週次集計を「月曜始まり」で実装した。日曜始まりが良ければ変更する。
-2. **食品の削除挙動**: 「削除＝ハード削除（過去の記録は名前・kcalのスナップショットを保持し foodId は null）」
-   とし、それとは別に「アーカイブ（一覧から隠す）」を PATCH で用意した。当初計画では DELETE=アーカイブだったが、
-   両方あった方が運用しやすいと判断。この仕様で問題ないか。
-3. **摂取記録の編集UI**: API には PATCH /api/records/:id を用意済みだが、Web画面では「追加＋削除」のみで
-   インライン編集UIは未実装（土台では削除→再追加で代替）。インライン編集が必要か。
-4. **ESLint**: 各 package.json に `lint` スクリプトはあるが、`eslint.config` は未作成（今は type-check + prettier が品質ゲート）。
-   ESLint 設定を追加するか。
+1. **週の起点**: 「月曜始まり」で確定（現状維持）。
+2. **食品の削除挙動**: → **アーカイブのみに変更**。サーバの `DELETE /api/foods/:id` は撤去し、
+   一覧からの除外は `archived` フラグ（PATCH）で行う。Web も削除ボタンを撤去しアーカイブ/復活のみ。
+3. **摂取記録の編集UI**: → **インライン編集を追加**。今日の記録一覧の各行に「編集」を追加し、
+   食品名・kcal・区分・摂取日時をその場で編集（`RecordRow` コンポーネント、`PATCH /api/records/:id`）。
+4. **ESLint**: → **追加**。web は next 用 flat config、server は typescript-eslint + prettier。
+   `npm run lint` でグリーン。
 
 ## その他の決定事項（情報共有）
 

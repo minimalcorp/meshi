@@ -22,7 +22,7 @@ export const foodRoutes: FastifyPluginAsync = async (app) => {
     return food;
   });
 
-  // 編集
+  // 編集（archived の切り替えもここで行う。物理削除は提供せず「アーカイブのみ」とする）
   app.patch('/:id', async (req, reply) => {
     const { id } = req.params as { id: string };
     const body = parse(updateFoodSchema, req.body, reply);
@@ -30,14 +30,5 @@ export const foodRoutes: FastifyPluginAsync = async (app) => {
     const existing = await prisma.food.findUnique({ where: { id } });
     if (!existing) return notFound(reply, 'Food not found');
     return prisma.food.update({ where: { id }, data: body });
-  });
-
-  // 削除（ハード削除。関連する摂取記録は食品名/kcalのスナップショットを保持し foodId は null になる）
-  app.delete('/:id', async (req, reply) => {
-    const { id } = req.params as { id: string };
-    const existing = await prisma.food.findUnique({ where: { id } });
-    if (!existing) return notFound(reply, 'Food not found');
-    await prisma.food.delete({ where: { id } });
-    reply.code(204);
   });
 };

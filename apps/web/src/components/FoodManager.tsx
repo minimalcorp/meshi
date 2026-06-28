@@ -51,12 +51,6 @@ export function FoodManager() {
     await reload();
   }
 
-  async function remove(f: Food) {
-    if (!confirm(`「${f.name}」を削除しますか？（過去の記録は名前・kcalが残ります）`)) return;
-    await foodsApi.remove(f.id);
-    await reload();
-  }
-
   return (
     <div className="space-y-6">
       {error && <div className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">{error}</div>}
@@ -108,9 +102,6 @@ export function FoodManager() {
                 <div className="flex items-center gap-2">
                   <Button variant="ghost" onClick={() => toggleArchive(f)}>
                     {f.archived ? '復活' : 'アーカイブ'}
-                  </Button>
-                  <Button variant="danger" onClick={() => remove(f)}>
-                    削除
                   </Button>
                 </div>
               </li>

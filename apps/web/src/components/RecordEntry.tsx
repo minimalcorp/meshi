@@ -4,8 +4,9 @@ import { useEffect, useMemo, useState } from 'react';
 import { foodsApi, goalsApi, recordsApi } from '@/lib/api';
 import type { CalorieGoal, Food, IntakeRecord, MealType } from '@/lib/types';
 import { MEAL_LABELS, MEAL_TYPES } from '@/lib/types';
-import { endOfDay, formatTime, startOfDay, toDatetimeLocal } from '@/lib/date';
+import { endOfDay, startOfDay, toDatetimeLocal } from '@/lib/date';
 import { Button, Card, Field, Input, Select, SectionTitle } from './ui';
+import { RecordRow } from './RecordRow';
 
 export function RecordEntry() {
   const [foods, setFoods] = useState<Food[]>([]);
@@ -82,11 +83,6 @@ export function RecordEntry() {
     } finally {
       setSubmitting(false);
     }
-  }
-
-  async function remove(id: string) {
-    await recordsApi.remove(id);
-    setRecords((rs) => rs.filter((r) => r.id !== id));
   }
 
   if (loading) return <p className="text-sm text-neutral-500">読み込み中…</p>;
@@ -221,21 +217,7 @@ export function RecordEntry() {
         ) : (
           <ul className="divide-y divide-neutral-100">
             {records.map((r) => (
-              <li key={r.id} className="flex items-center justify-between py-2 text-sm">
-                <div className="flex items-center gap-2">
-                  <span className="w-10 rounded bg-neutral-100 px-1 py-0.5 text-center text-xs text-neutral-600">
-                    {MEAL_LABELS[r.mealType]}
-                  </span>
-                  <span className="text-neutral-400">{formatTime(r.consumedAt)}</span>
-                  <span className="font-medium">{r.name}</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <span className="tabular-nums">{r.calories} kcal</span>
-                  <Button variant="danger" onClick={() => remove(r.id)}>
-                    削除
-                  </Button>
-                </div>
-              </li>
+              <RecordRow key={r.id} record={r} onChanged={reload} />
             ))}
           </ul>
         )}

@@ -36,7 +36,7 @@ export const foodsApi = {
       archived: boolean;
     }>,
   ) => http<Food>(`/api/foods/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
-  remove: (id: string) => http<void>(`/api/foods/${id}`, { method: 'DELETE' }),
+  // 物理削除は提供せず、archived フラグ（update）で「アーカイブのみ」とする
 };
 
 // ---- Records ----
