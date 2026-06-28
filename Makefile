@@ -14,8 +14,11 @@ help: ## このヘルプを表示
 install: ## 依存インストール
 	NODE_ENV=development npm install --include=dev
 
-dev: ## web + server を同時起動 (ローカル, データは ./.meshi-dev に隔離)
-	NODE_ENV=development MESHI_DATA_DIR=$(DEV_DATA_DIR) npm run dev
+dev: ## web=5350 / server=5351 で同時起動 (ローカル, データは ./.meshi-dev に隔離)
+	NODE_ENV=development MESHI_DATA_DIR=$(DEV_DATA_DIR) \
+		MESHI_WEB_PORT=5350 MESHI_SERVER_PORT=5351 \
+		NEXT_PUBLIC_MESHI_API_URL=http://localhost:5351 \
+		npm run dev
 
 dev-clean: ## 開発用データ (./.meshi-dev) を破棄
 	rm -rf $(DEV_DATA_DIR)

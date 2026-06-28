@@ -5,9 +5,9 @@
   "description": "meshi web UI (Next.js)",
   "type": "module",
   "scripts": {
-    "dev": "next dev -p 5250",
+    "dev": "next dev -p ${MESHI_WEB_PORT:-5250}",
     "build": "next build",
-    "start": "next start -p 5250",
+    "start": "next start -p ${MESHI_WEB_PORT:-5250}",
     "lint": "eslint",
     "type-check": "tsc --noEmit"
   },
