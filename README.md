@@ -33,28 +33,35 @@ npx @minimalcorp/meshi
 
 ポート（dev と docker で分離し、同時起動しても衝突しない）:
 
-|                               | web  | server |
-| ----------------------------- | ---- | ------ |
-| `npx @minimalcorp/meshi`      | 6250 | 6251   |
-| `make dev`（ローカル開発）    | 5350 | 5351   |
-| `make up`（docker・本番想定） | 5250 | 5251   |
+|                                 | web  | server | docs |
+| ------------------------------- | ---- | ------ | ---- |
+| `npx @minimalcorp/meshi`        | 6250 | 6251   | —    |
+| `make dev`（開発・docker）      | 5350 | 5351   | 6260 |
+| `make up`（本番ビルド・docker） | 5250 | 5251   | —    |
 
 > npx 起動時の server ポート (6251) は web ビルドに焼き込まれているため固定です（web ポートは `PORT` env で変更可）。
 
-## セットアップ / 起動
+## 開発（docker でホットリロード起動）
+
+`make dev` は **docker 上で server + web + docs を同時にホットリロード起動**します（ローカルに Node.js を入れる必要はありません）。データは使い捨ての `./.meshi-dev` に隔離され、実データ `~/.meshi` とは分離されます。
 
 ```bash
-make install   # 依存インストール
-make dev       # web + server を同時起動
+make dev        # docker で起動（web=5350 / server=5351 / docs=6260, HMR）
+make dev-logs   # ログ表示
+make dev-down   # 停止 & container 削除（開発データ ./.meshi-dev は保持）
+make dev-clean  # container & volume + 開発データ ./.meshi-dev を破棄
 ```
 
 - web: http://localhost:5350
 - server: http://localhost:5351
-- データは使い捨ての `./.meshi-dev` に保存（実データ `~/.meshi` とは分離）。破棄は `make dev-clean`
+- docs: http://localhost:6260
+- ソースは bind mount され、編集は即反映されます（node_modules はコンテナ内のものを使用）。
+
+> ローカルの IDE 補完／型チェック用に依存を入れたい場合のみ `make install` を実行（dev 自体は docker 内で完結するため任意）。
 
 ## docker で本番稼働を確認
 
-`make up` は本番稼働を想定し、ビルドして起動します。**データはホストの `~/.meshi` に永続化**されます（bind mount）。
+`make up` は本番稼働を想定し、web + server をビルドして起動します。**データはホストの `~/.meshi` に永続化**されます（bind mount）。
 
 ```bash
 make up     # ビルドして起動（web=5250 / server=5251, ~/.meshi に永続化）
@@ -62,10 +69,8 @@ make logs   # ログ表示
 make down   # 停止 & container削除（~/.meshi のデータはホストに保持）
 ```
 
-> 注: `make dev`（web=5350 / server=5351 / データ=`~/.meshi-dev`）と
-> `make up`（web=5250 / server=5251 / データ=`~/.meshi`）はポートもデータも別です。
-> ただし `make up` は実データ `~/.meshi` を直接使うため、`make dev` と同時起動する場合でも
-> データ整合の観点では別DBになる点に留意してください。
+> 注: `make dev`（web=5350 / server=5351 / docs=6260 / データ=`./.meshi-dev`）と
+> `make up`（web=5250 / server=5251 / データ=`~/.meshi`）はポートもデータも完全に別です。
 
 ## リリース（npm 公開 / docs デプロイ）
 
@@ -144,7 +149,7 @@ meshi/
 ## ドキュメント
 
 - **公開ドキュメントサイト**: https://minimalcorp.github.io/meshi/ （`apps/docs` / Nextra）
-  - ローカルプレビュー: `npm run docs:dev`（http://localhost:6260 ）
+  - ローカルプレビュー: `make dev` で docs も起動（http://localhost:6260 ）
 - 内部メモ:
   - [開発計画](docs/development-plan.md)
   - [開発メモ（不明点・判断ログ）](docs/dev-notes.md)

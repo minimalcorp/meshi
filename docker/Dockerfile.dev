@@ -1,0 +1,29 @@
+# 開発用イメージ。server(tsx watch) / web(next dev) / docs(next dev) を
+# ホットリロード付きで1コンテナ起動する。ソースは compose で bind mount し、
+# node_modules は anonymous volume でコンテナ内 (linux) のものを保持する。
+FROM node:24-slim
+
+# prisma / libsql などのネイティブ依存に必要
+RUN apt-get update && apt-get install -y --no-install-recommends openssl ca-certificates \
+  && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# ホスト環境の NODE_ENV=production に引きずられないよう明示する。
+ENV NODE_ENV=development
+
+# 依存インストール（各 workspace の package.json を先に置いてレイヤキャッシュを効かせる）。
+# ここで入れた node_modules は compose の anonymous volume の初期値になる。
+COPY package.json package-lock.json ./
+COPY apps/server/package.json apps/server/package.json
+COPY apps/web/package.json apps/web/package.json
+COPY apps/cli/package.json apps/cli/package.json
+COPY apps/docs/package.json apps/docs/package.json
+RUN npm ci --include=dev
+
+# ソースは compose で bind mount するため COPY しない。
+# Prisma client は server の dev:migrate（起動時）で生成される。
+
+EXPOSE 5350 5351 6260
+
+CMD ["npm", "run", "dev"]

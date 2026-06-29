@@ -11,7 +11,7 @@
     "apps/*"
   ],
   "scripts": {
-    "dev": "concurrently --kill-others --names server,web --prefix-colors magenta,blue \"npm run dev -w @meshi/server\" \"npm run dev -w @meshi/web\"",
+    "dev": "concurrently --kill-others --names server,web,docs --prefix-colors magenta,blue,cyan \"npm run dev -w @meshi/server\" \"npm run dev -w @meshi/web\" \"npm run dev -w meshi-docs\"",
     "web:dev": "npm run dev -w @meshi/web",
     "server:dev": "npm run dev -w @meshi/server",
     "docs:dev": "npm run dev -w meshi-docs",
