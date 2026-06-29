@@ -44,12 +44,12 @@
   ],
   "scripts": {
     "build": "tsc -p tsconfig.json && chmod +x dist/cli.js",
-    "prepack": "npm run build -w @meshi/server && NEXT_PUBLIC_MESHI_API_URL=http://localhost:6251 npm run build -w @meshi/web && npm run build && node scripts/bundle.mjs",
+    "prepack": "npm run build -w @meshi/server && NEXT_PUBLIC_MESHI_API_URL= npm run build -w @meshi/web && npm run build && node scripts/bundle.mjs",
     "lint": "eslint",
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
-    "@fastify/cors": "^11.2.0",
+    "@fastify/http-proxy": "^11.5.0",
     "@libsql/client": "^0.15.0",
     "@prisma/adapter-libsql": "^7.3.0",
     "@prisma/client": "^7.3.0",

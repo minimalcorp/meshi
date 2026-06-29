@@ -24,6 +24,7 @@ RUN npm ci --include=dev
 # ソースは compose で bind mount するため COPY しない。
 # Prisma client は server の dev:migrate（起動時）で生成される。
 
-EXPOSE 5350 5351 6260
+# 5250: Fastify(公開エントリ) / 5251: 内部 Next.js(proxy 先) / 6260: docs
+EXPOSE 5250 5251 6260
 
 CMD ["npm", "run", "dev"]

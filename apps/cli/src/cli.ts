@@ -22,15 +22,18 @@ import { fileURLToPath } from 'node:url';
  *   <pkg>/prisma/migrations/**
  *   <pkg>/prisma.config.ts
  *
- * web は build 時に NEXT_PUBLIC_MESHI_API_URL=http://localhost:6251 を焼き込んでいるため、
- * server は必ず 6251 で待ち受ける。web の port は PORT env で変更可能。
+ * Fastify が唯一の公開エントリ。API を直接処理し、それ以外（Next.js のページ／静的
+ * アセット）を内部の Next.js へ proxy する。web は相対 URL (same-origin) でビルド
+ * しているため、公開ポート (PUBLIC_PORT) は PORT env で自由に変更できる。
  */
 
 // ---------------------------------------------------------------------------
-// 固定ポート (web の API URL がビルド時に焼き込まれているため server は固定)
+// ポート
+//   PUBLIC_PORT : ユーザーがブラウザで開く Fastify の公開ポート（変更可）
+//   WEB_PORT    : 内部 Next.js のポート（Fastify から proxy。外部公開しない）
 // ---------------------------------------------------------------------------
-const SERVER_PORT = 6251;
-const WEB_PORT = process.env.PORT ?? '6250';
+const PUBLIC_PORT = process.env.PORT ?? '5250';
+const WEB_PORT = '5251';
 
 // ---------------------------------------------------------------------------
 // Braille-dots spinner
@@ -130,8 +133,10 @@ const fastifyChild: ChildProcess = spawn(process.execPath, [FASTIFY_ENTRY_JS], {
   env: {
     ...process.env,
     NODE_ENV: 'production',
-    MESHI_SERVER_PORT: String(SERVER_PORT),
+    MESHI_SERVER_PORT: String(PUBLIC_PORT),
     MESHI_SERVER_HOST: '0.0.0.0',
+    // Fastify の proxy 先（内部 Next.js）
+    MESHI_WEB_PORT: WEB_PORT,
   },
 });
 
@@ -189,13 +194,13 @@ function pollHttp(
 }
 
 Promise.all([
-  pollHttp(SERVER_PORT, '/health', (s) => s === 200),
+  pollHttp(Number(PUBLIC_PORT), '/health', (s) => s === 200),
   pollHttp(Number(WEB_PORT), '/', (s) => s > 0 && s < 500),
 ]).then(() => {
   spinner.stop();
   console.log(MESHI_AA);
 
-  const url = `http://localhost:${WEB_PORT}`;
+  const url = `http://localhost:${PUBLIC_PORT}`;
 
   // docker / headless / テスト時はブラウザを自動で開かない
   if (!isDocker && !process.env.MESHI_NO_OPEN) {

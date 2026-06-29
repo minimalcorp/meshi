@@ -1,12 +1,20 @@
 import type { CalorieGoal, Food, IntakeRecord, MealType, Period, Summary } from './types';
 
-const BASE = process.env.NEXT_PUBLIC_MESHI_API_URL ?? 'http://localhost:5251';
+// Fastify が単一エントリとして API を同一オリジンで配信するため、既定は相対パス。
+// （別オリジンの API を叩く場合のみ NEXT_PUBLIC_MESHI_API_URL を指定する）
+const BASE = process.env.NEXT_PUBLIC_MESHI_API_URL ?? '';
 
 async function http<T>(path: string, init?: RequestInit): Promise<T> {
+  // body を持つリクエスト(POST/PATCH)のときだけ JSON の content-type を付ける。
+  // body 無し(DELETE/GET)で application/json を送ると Fastify が空ボディを拒否する
+  // (FST_ERR_CTP_EMPTY_JSON_BODY) ため、付けない。
   const res = await fetch(`${BASE}${path}`, {
-    headers: { 'content-type': 'application/json' },
     cache: 'no-store',
     ...init,
+    headers: {
+      ...(init?.body != null ? { 'content-type': 'application/json' } : {}),
+      ...init?.headers,
+    },
   });
   if (!res.ok) {
     let detail = '';

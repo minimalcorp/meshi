@@ -8,7 +8,7 @@
  *
  * 事前に必要なステップ:
  *   1. npm run build -w @meshi/server
- *   2. NEXT_PUBLIC_MESHI_API_URL=http://localhost:6251 npm run build -w @meshi/web
+ *   2. NEXT_PUBLIC_MESHI_API_URL= npm run build -w @meshi/web  (API は同一オリジン=相対パス)
  *   3. npm run build -w @minimalcorp/meshi  (dist/cli.js 等をコンパイル)
  *
  * このスクリプトは最終ステップ (prepack 経由) として実行され、ファイルコピーのみ行う。

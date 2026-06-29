@@ -11,7 +11,7 @@ help: ## このヘルプを表示
 # ---------------------------------------------------------------------------
 # 開発（docker・ホットリロード。データは使い捨て ./.meshi-dev。本番 ~/.meshi とは無関係）
 # ---------------------------------------------------------------------------
-dev: ## docker で dev 起動 (web=5350 / server=5351 / docs=6260, HMR, データは ./.meshi-dev)
+dev: ## docker で dev 起動 (http://localhost:6250 → Fastify5250→Next5251 / docs=6260, HMR, データは ./.meshi-dev)
 	$(DEV_COMPOSE) up --build
 
 dev-logs: ## dev コンテナのログを follow 表示
@@ -30,9 +30,9 @@ install: ## 依存インストール（任意・ローカル IDE 用）
 	NODE_ENV=development npm install --include=dev
 
 # ---------------------------------------------------------------------------
-# docker による本番稼働想定の確認 (web+server のみ。データはホスト ~/.meshi に永続化)
+# docker による本番稼働想定の確認 (Fastify が単一エントリ。データはホスト ~/.meshi に永続化)
 # ---------------------------------------------------------------------------
-up: ## docker で本番ビルド起動 (web=5250 / server=5251, ~/.meshi を bind mount)
+up: ## docker で本番ビルド起動 (http://localhost:6250 → Fastify5250→Next5251, ~/.meshi を bind mount)
 	$(COMPOSE) up -d --build
 
 down: ## docker 停止 & container削除 (~/.meshi のデータはホストに保持)

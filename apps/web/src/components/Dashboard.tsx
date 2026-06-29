@@ -46,11 +46,18 @@ export function Dashboard() {
     load();
   }, [load]);
 
-  const pct =
-    summary && summary.target
-      ? Math.min(100, Math.round((summary.total / summary.target) * 100))
-      : null;
+  const pct = summary && summary.target ? Math.round((summary.total / summary.target) * 100) : null;
   const over = summary?.diff !== null && summary?.diff !== undefined && summary.diff > 0;
+  // バーの色分け: 目標までを緑、超過分を赤で表現する。
+  // 超過時はバー全体(100%)を total で按分し、緑=目標/total・赤=超過分/total とする。
+  // 目標以下のときは達成率ぶんだけ緑で満たす。
+  const greenWidth =
+    summary && summary.target
+      ? over
+        ? Math.round((summary.target / summary.total) * 100)
+        : Math.min(100, pct ?? 0)
+      : 0;
+  const redWidth = over ? 100 - greenWidth : 0;
 
   return (
     <div className="space-y-6">
@@ -109,11 +116,11 @@ export function Dashboard() {
 
             {pct !== null && (
               <>
-                <div className="mt-3 h-2.5 w-full overflow-hidden rounded-full bg-neutral-200">
-                  <div
-                    className={`h-full ${over ? 'bg-red-500' : 'bg-emerald-500'}`}
-                    style={{ width: `${pct}%` }}
-                  />
+                <div className="mt-3 flex h-2.5 w-full overflow-hidden rounded-full bg-neutral-200">
+                  <div className="h-full bg-emerald-500" style={{ width: `${greenWidth}%` }} />
+                  {redWidth > 0 && (
+                    <div className="h-full bg-red-500" style={{ width: `${redWidth}%` }} />
+                  )}
                 </div>
                 <div className="mt-2 flex justify-between text-sm">
                   <span className="text-neutral-500">達成率 {pct}%</span>

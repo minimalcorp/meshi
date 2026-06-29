@@ -1,5 +1,6 @@
 # meshi をローカルで一時的に動作確認するためのイメージ
-# server(Fastify, tsx実行) と web(Next.js) を1コンテナで起動する。
+# Fastify(公開:5250) を単一エントリにし、API 以外を内部 Next.js(5251) へ proxy する。
+# 1コンテナで両プロセスを起動する。
 FROM node:24-slim
 
 # prisma/libsql などのネイティブ依存に必要
@@ -24,13 +25,14 @@ COPY . .
 # Prisma クライアント生成
 RUN npm run db:generate -w @meshi/server
 
-# web をビルド（ブラウザから叩く API URL をビルド時にインライン化）
-ENV NEXT_PUBLIC_MESHI_API_URL=http://localhost:5251
+# web をビルド。API は Fastify が同一オリジンで配信するため URL は相対（空）で焼き込む。
+ENV NEXT_PUBLIC_MESHI_API_URL=
 RUN NODE_ENV=production npm run build -w @meshi/web
 
 # データは named volume にマウントするディレクトリへ
 ENV MESHI_DATA_DIR=/data
 
+# 5250: 公開する Fastify エントリ / 5251: 内部 Next.js（proxy 先）
 EXPOSE 5250 5251
 
 CMD ["sh", "docker/start.sh"]

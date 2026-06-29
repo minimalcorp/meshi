@@ -20,7 +20,7 @@
     "db:studio": "prisma studio"
   },
   "dependencies": {
-    "@fastify/cors": "^11.2.0",
+    "@fastify/http-proxy": "^11.5.0",
     "@libsql/client": "^0.15.0",
     "@prisma/adapter-libsql": "^7.3.0",
     "@prisma/client": "^7.3.0",
