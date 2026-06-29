@@ -1,0 +1,51 @@
+---
+title: インストールと起動
+description: npx / グローバルインストール / ソースからの起動方法。
+---
+
+# インストールと起動
+
+## 前提
+
+- Node.js 20 以上
+- macOS または Linux
+
+## npx で起動（推奨）
+
+インストール不要でそのまま起動できます。
+
+```bash
+npx @minimalcorp/meshi
+```
+
+起動すると web UI（http://localhost:6250）が自動で開きます。停止は `Ctrl-C` です。
+
+## グローバルインストール
+
+繰り返し使う場合はグローバルインストールも可能です。
+
+```bash
+npm install -g @minimalcorp/meshi
+meshi
+```
+
+## ソースから起動（開発者向け）
+
+リポジトリを clone して開発用に起動する場合:
+
+```bash
+git clone https://github.com/minimalcorp/meshi.git
+cd meshi
+make install   # 依存インストール
+make dev       # web + server を同時起動 (web=5350 / server=5351)
+```
+
+開発時のデータは使い捨ての `./.meshi-dev` に保存され、実データ `~/.meshi` とは分離されます（破棄は `make dev-clean`）。
+
+## ポート一覧
+
+| 起動方法                   | web  | server |
+| -------------------------- | ---- | ------ |
+| `npx @minimalcorp/meshi`   | 6250 | 6251   |
+| `make dev`（ローカル開発） | 5350 | 5351   |
+| `make up`（docker）        | 5250 | 5251   |

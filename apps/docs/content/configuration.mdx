@@ -1,0 +1,36 @@
+---
+title: データと設定
+description: データの保存先・環境変数・docker での永続化。
+---
+
+# データと設定
+
+## データの保存先
+
+meshi のデータは SQLite に保存され、既定では手元の `~/.meshi/state/meshi.db` に永続化されます。クラウドには一切送信されません。
+
+保存先を変えたい場合は `MESHI_DATA_DIR` を指定します。
+
+```bash
+MESHI_DATA_DIR=/path/to/dir npx @minimalcorp/meshi
+```
+
+## 環境変数
+
+| 変数             | 既定値     | 説明                                       |
+| ---------------- | ---------- | ------------------------------------------ |
+| `MESHI_DATA_DIR` | `~/.meshi` | DB / state の保存先                        |
+| `PORT`           | `6250`     | web UI のポート（`npx` 起動時）            |
+| `MESHI_DEBUG`    | （未設定） | 設定すると web/server の標準出力も表示する |
+
+> `npx` 起動時の API server ポート（6251）は web ビルドに焼き込まれているため固定です。
+
+## docker で動かす
+
+リポジトリには docker 構成も含まれています。本番稼働を想定し、データはホストの `~/.meshi` に永続化されます（bind mount）。
+
+```bash
+make up     # ビルドして起動 (web=5250 / server=5251)
+make logs   # ログ表示
+make down   # 停止 & container 削除（データはホストに保持）
+```
