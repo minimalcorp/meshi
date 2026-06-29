@@ -1,6 +1,6 @@
 {
   "name": "@minimalcorp/meshi",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "摂取カロリーを記録し、目標に対する進捗を可視化するローカルツール。npx 一発で web + server を起動する。",
   "keywords": [
     "meshi",
