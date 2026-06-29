@@ -6,8 +6,9 @@ services:
     image: meshi:local
     container_name: meshi
     ports:
-      - '5250:5250' # web
-      - '5251:5251' # server
+      # ホスト 6250 → コンテナ内 Fastify 5250（API 以外は内部 Next.js 5251 へ proxy）。
+      # ブラウザは常に Fastify と同一オリジンで通信するため Next.js は外部公開しない。
+      - '6250:5250'
     volumes:
       # 本番稼働想定: ホストの ~/.meshi に永続化（bind mount）
       - ${HOME}/.meshi:/data
