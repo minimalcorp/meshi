@@ -27,27 +27,20 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  # 承認ゲート。
-  # production-release Environment に Required reviewers を設定する想定で、
-  # この job が pending 状態になると GitHub UI 上で人間の承認操作が必要になる。
-  # 承認画面で main の最新状態 (他 PR の merge 状況等) を目視確認することで、
-  # 意図しない内容のリリースを防ぐ。
-  approve:
-    name: Approve release
-    runs-on: ubuntu-latest
-    environment: production-release
-    steps:
-      - name: Record approval
-        run: |
-          echo "Release approved"
-          echo "  target:  ${{ inputs.target }}"
-          echo "  version: ${{ inputs.version }}"
-
+  # 承認ゲートは各デプロイ job の Environment (production-release / github-pages) の
+  # Required reviewers で行う。専用の承認 job を挟まず、実際に publish / deploy する
+  # job 自身を承認待ちにすることで、以下を同時に満たす:
+  #   - 承認画面で main の最新状態 (他 PR の merge 状況等) を目視確認できる
+  #   - npm Trusted Publishing の OIDC token に environment claim (production-release)
+  #     が乗り、environment 指定付きの Trusted Publisher 設定と一致する
+  #     (publish job 以外に environment を付けても publish 用 token には反映されない)
   publish:
     name: Publish @minimalcorp/meshi to npm
     if: ${{ inputs.target == 'all' || inputs.target == 'meshi' }}
-    needs: approve
     runs-on: ubuntu-latest
+    # この environment 宣言が「承認ゲート」兼「OIDC environment claim の発生源」。
+    # production-release には Required reviewers を設定しておくこと。
+    environment: production-release
     permissions:
       contents: write
       # npm Trusted Publishing (OIDC) と provenance 自動生成のため必須。
@@ -154,11 +147,12 @@ jobs:
   deploy-docs:
     name: Deploy docs to GitHub Pages
     if: ${{ inputs.target == 'all' || inputs.target == 'docs' }}
-    needs: approve
     runs-on: ubuntu-latest
     permissions:
       pages: write
       id-token: write
+    # github-pages Environment がそのまま承認ゲートを兼ねる。
+    # docs デプロイにも承認を必須にするため github-pages にも Required reviewers を設定すること。
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}

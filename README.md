@@ -113,7 +113,8 @@ GitHub Actions の `Release` workflow を手動実行することで、`@minimal
 4. **`production-release` Environment の作成と承認者設定**（必須）
    - Settings → Environments → `New environment` → 名前を `production-release` として作成
    - **Required reviewers** を有効化し、リリース承認権限を持つメンバー（自分自身でも可）を追加
-   - Release workflow の `approve` job はこの Environment 配下で実行されるため、実行時に GitHub UI で明示的な承認操作が必要になる
+   - Release workflow の `publish` job がこの Environment 配下で実行されるため、実行時に GitHub UI で明示的な承認操作が必要になる
+   - この Environment 宣言は承認ゲートであると同時に、npm Trusted Publishing の OIDC token に `environment=production-release` claim を付与する役割も持つ。npm 側 Trusted Publisher を environment 指定付きで登録している場合、publish job 自身がこの Environment 配下で動いていないと claim 不一致で publish が 404 になる
 
 5. **`main` ブランチ保護の bypass 設定**（保護ルールを設定している場合）
    - `Release` workflow は `npm version` で bump した commit と tag を `main` に直接 push する
@@ -124,6 +125,7 @@ GitHub Actions の `Release` workflow を手動実行することで、`@minimal
 6. **GitHub Pages を Actions ソースに設定**（docs をデプロイする場合）
    - Settings → Pages → Source: **GitHub Actions** を選択（`Deploy from a branch` ではない）
    - `deploy-docs` job は `github-pages` Environment を使うため、初回デプロイ時に Environment が自動作成される
+   - docs デプロイにも承認を必須にする場合は、`github-pages` Environment にも **Required reviewers** を設定する（`deploy-docs` job が承認待ちになる）
 
 これらを設定せずに workflow を実行すると、途中で失敗してバージョン番号だけが bump された中途半端な状態になる可能性があるので、**必ず事前に設定してください**。
 
