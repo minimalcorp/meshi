@@ -1,0 +1,67 @@
+{
+  "name": "@minimalcorp/meshi",
+  "version": "0.0.0",
+  "description": "摂取カロリーを記録し、目標に対する進捗を可視化するローカルツール。npx 一発で web + server を起動する。",
+  "keywords": [
+    "meshi",
+    "calorie",
+    "nutrition",
+    "health",
+    "tracker",
+    "local-first",
+    "self-hosted",
+    "developer-tools"
+  ],
+  "homepage": "https://github.com/minimalcorp/meshi#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/minimalcorp/meshi.git"
+  },
+  "bugs": {
+    "url": "https://github.com/minimalcorp/meshi/issues"
+  },
+  "author": "minimalcorp",
+  "license": "SEE LICENSE IN LICENSE",
+  "engines": {
+    "node": ">=20"
+  },
+  "os": [
+    "darwin",
+    "linux"
+  ],
+  "type": "module",
+  "bin": {
+    "meshi": "./dist/cli.js"
+  },
+  "files": [
+    "dist/**/*",
+    ".next/standalone/**/*",
+    "prisma/schema.prisma",
+    "prisma/migrations/**/*",
+    "prisma.config.ts",
+    "LICENSE",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json && chmod +x dist/cli.js",
+    "prepack": "npm run build -w @meshi/server && NEXT_PUBLIC_MESHI_API_URL=http://localhost:6251 npm run build -w @meshi/web && npm run build && node scripts/bundle.mjs",
+    "lint": "eslint",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@fastify/cors": "^11.2.0",
+    "@libsql/client": "^0.15.0",
+    "@prisma/adapter-libsql": "^7.3.0",
+    "@prisma/client": "^7.3.0",
+    "fastify": "^5.8.2",
+    "prisma": "^7.3.0",
+    "zod": "^4.1.13"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.30",
+    "eslint": "^9",
+    "eslint-config-prettier": "^10.1.8",
+    "tsx": "^4.21.0",
+    "typescript": "5.9.3"
+  }
+}

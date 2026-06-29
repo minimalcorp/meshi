@@ -4,3 +4,8 @@ dist
 out
 apps/server/src/generated
 package-lock.json
+
+# CLI (@minimalcorp/meshi) bundle artifacts copied in by scripts/bundle.mjs
+apps/cli/prisma
+apps/cli/prisma.config.ts
+apps/cli/LICENSE
