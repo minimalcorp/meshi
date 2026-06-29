@@ -1,0 +1,35 @@
+# 開発用 compose。make dev から使用する。
+# server / web / docs をホットリロード付きで docker 内に起動し、
+# データは使い捨ての ./.meshi-dev に隔離する（本番 ~/.meshi とは無関係）。
+services:
+  meshi-dev:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.dev
+    image: meshi:dev
+    container_name: meshi-dev
+    ports:
+      - '5350:5350' # web
+      - '5351:5351' # server
+      - '6260:6260' # docs
+    environment:
+      NODE_ENV: development
+      MESHI_DATA_DIR: /data
+      MESHI_WEB_PORT: '5350'
+      MESHI_SERVER_PORT: '5351'
+      NEXT_PUBLIC_MESHI_API_URL: http://localhost:5351
+      # macOS / Windows の bind mount 上でも HMR が効くようファイル監視を polling に。
+      WATCHPACK_POLLING: 'true'
+      CHOKIDAR_USEPOLLING: 'true'
+    volumes:
+      # ソースを bind mount（編集が即反映）
+      - ..:/app
+      # node_modules はコンテナ内 (linux) のものを保持する anonymous volume。
+      # bind mount でホスト (mac 等) の node_modules に上書きされるのを防ぐ。
+      - /app/node_modules
+      - /app/apps/server/node_modules
+      - /app/apps/web/node_modules
+      - /app/apps/cli/node_modules
+      - /app/apps/docs/node_modules
+      # 開発データは使い捨て（リポジトリ直下の ./.meshi-dev）
+      - ../.meshi-dev:/data
