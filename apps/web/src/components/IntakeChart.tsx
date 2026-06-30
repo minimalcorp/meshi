@@ -42,6 +42,9 @@ export function IntakeChart({ days }: { days: SummaryDay[] }) {
     [maxY, innerH],
   );
 
+  // 各日の中心X座標（帯の中央に点・線を配置）
+  const cx = (d: SummaryDay) => (xScale(d.date) ?? 0) + xScale.bandwidth() / 2;
+
   // ラベルは最大10個程度に間引く
   const tickStep = Math.max(1, Math.ceil(days.length / 10));
 
@@ -52,19 +55,40 @@ export function IntakeChart({ days }: { days: SummaryDay[] }) {
           <Group left={MARGIN.left} top={MARGIN.top}>
             <GridRows scale={yScale} width={innerW} stroke="#eee" numTicks={4} />
 
+            {/* 摂取カロリーの推移ライン */}
+            <LinePath
+              data={days}
+              x={cx}
+              y={(d) => yScale(d.total)}
+              stroke="#10b981"
+              strokeWidth={2}
+            />
+
+            {/* 各日のマーカー（目標内=緑 / 超過=赤） */}
+            {days.map((d) => {
+              const over = d.target !== null && d.total > d.target;
+              return (
+                <circle
+                  key={d.date}
+                  cx={cx(d)}
+                  cy={yScale(d.total)}
+                  r={3.5}
+                  fill={over ? '#ef4444' : '#10b981'}
+                />
+              );
+            })}
+
+            {/* ホバー用の透明なヒット領域（帯幅いっぱい） */}
             {days.map((d) => {
               const x = xScale(d.date) ?? 0;
-              const barH = innerH - yScale(d.total);
-              const over = d.target !== null && d.total > d.target;
               return (
                 <Bar
                   key={d.date}
                   x={x}
-                  y={yScale(d.total)}
+                  y={0}
                   width={xScale.bandwidth()}
-                  height={Math.max(0, barH)}
-                  rx={2}
-                  fill={over ? '#ef4444' : '#10b981'}
+                  height={innerH}
+                  fill="transparent"
                   onMouseMove={(e) => {
                     const pt = localPoint(e);
                     showTooltip({
@@ -81,7 +105,7 @@ export function IntakeChart({ days }: { days: SummaryDay[] }) {
             {/* 目標ライン（各日の目標値を結ぶ。null日は除外） */}
             <LinePath
               data={days.filter((d) => d.target !== null)}
-              x={(d) => (xScale(d.date) ?? 0) + xScale.bandwidth() / 2}
+              x={cx}
               y={(d) => yScale(d.target ?? 0)}
               stroke="#737373"
               strokeWidth={1.5}
@@ -125,10 +149,10 @@ export function IntakeChart({ days }: { days: SummaryDay[] }) {
 
       <div className="mt-2 flex gap-4 text-xs text-neutral-500">
         <span className="flex items-center gap-1">
-          <span className="inline-block h-2 w-2 rounded-sm bg-emerald-500" /> 目標内
+          <span className="inline-block h-2 w-2 rounded-full bg-emerald-500" /> 目標内
         </span>
         <span className="flex items-center gap-1">
-          <span className="inline-block h-2 w-2 rounded-sm bg-red-500" /> 超過
+          <span className="inline-block h-2 w-2 rounded-full bg-red-500" /> 超過
         </span>
         <span className="flex items-center gap-1">
           <span className="inline-block h-0 w-3 border-t border-dashed border-neutral-500" />{' '}
