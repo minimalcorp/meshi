@@ -6,6 +6,7 @@ import type { IntakeRecord, MealType } from '@/lib/types';
 import { MEAL_LABELS, MEAL_TYPES } from '@/lib/types';
 import { formatTime, toDatetimeLocal } from '@/lib/date';
 import { Button, Input, Select } from './ui';
+import { MealBadge } from './MealBadge';
 
 export function RecordRow({
   record,
@@ -102,9 +103,7 @@ export function RecordRow({
   return (
     <li className="flex items-center justify-between py-2 text-sm">
       <div className="flex items-center gap-2">
-        <span className="w-10 rounded bg-neutral-100 px-1 py-0.5 text-center text-xs text-neutral-600">
-          {MEAL_LABELS[record.mealType]}
-        </span>
+        <MealBadge mealType={record.mealType} />
         <span className="text-neutral-400">{formatTime(record.consumedAt)}</span>
         <span className="font-medium">{record.name}</span>
       </div>
