@@ -120,7 +120,13 @@ export function IntakeChart({ days }: { days: SummaryDay[] }) {
               tickStroke="#ccc"
               // textAnchor: 'end' でラベルを右揃えにし、桁が増えても左へ伸びるようにする
               // （未指定だと start 扱いで右に伸び、Y軸線に重なる）
-              tickLabelProps={() => ({ fill: '#888', fontSize: 10, textAnchor: 'end', dx: -4, dy: 3 })}
+              tickLabelProps={() => ({
+                fill: '#888',
+                fontSize: 10,
+                textAnchor: 'end',
+                dx: -4,
+                dy: 3,
+              })}
             />
             <AxisBottom
               top={innerH}
