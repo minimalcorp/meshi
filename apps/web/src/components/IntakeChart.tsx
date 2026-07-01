@@ -12,7 +12,8 @@ import type { SummaryDay } from '@/lib/types';
 import { useWidth } from '@/lib/useMeasure';
 
 const HEIGHT = 240;
-const MARGIN = { top: 12, right: 12, bottom: 28, left: 44 };
+// left は Y軸ラベルの最長値（カンマ込み7文字, ex. 12,345）が収まる幅を確保する
+const MARGIN = { top: 12, right: 12, bottom: 28, left: 52 };
 
 function dayLabel(date: string): string {
   const d = new Date(`${date}T00:00:00`);
@@ -117,7 +118,15 @@ export function IntakeChart({ days }: { days: SummaryDay[] }) {
               numTicks={4}
               stroke="#ccc"
               tickStroke="#ccc"
-              tickLabelProps={() => ({ fill: '#888', fontSize: 10, dx: -2, dy: 3 })}
+              // textAnchor: 'end' でラベルを右揃えにし、桁が増えても左へ伸びるようにする
+              // （未指定だと start 扱いで右に伸び、Y軸線に重なる）
+              tickLabelProps={() => ({
+                fill: '#888',
+                fontSize: 10,
+                textAnchor: 'end',
+                dx: -4,
+                dy: 3,
+              })}
             />
             <AxisBottom
               top={innerH}
